@@ -2,11 +2,21 @@ import praw
 import config
 import pandas as pd
 
+from sql_script import sql_script
+
 # Authenticate with Reddit API
 reddit = praw.Reddit(
     client_id=config.CLIENT_ID,
     client_secret=config.CLIENT_SECRET,
     user_agent=config.USER_AGENT
+)
+
+db_script= sql_script(
+    db_host = config.DB_HOST,
+    db_name = config.DB_NAME,
+    db_password = config.DB_PASSWORD,
+    db_port = config.DB_PORT,
+    db_user = config.DB_USER
 )
 
 # Test connection by fetching subreddit details
@@ -38,5 +48,11 @@ def fetch_reddit_posts(subreddit_name, post_limit=50):
 
     return pd.DataFrame(posts)
 
-df = fetch_reddit_posts("paranormal")
-print(df)
+def main():
+    df = fetch_reddit_posts("paranormal", 200)
+    db_script.insert_table(df,"paranormal")
+    print(df)
+
+
+if __name__=="__main__":
+    main()
